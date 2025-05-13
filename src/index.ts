@@ -1,9 +1,18 @@
-import { Hono } from 'hono'
+import { Hono } from 'hono';
+import * as dotenv from 'dotenv';
+import authRoutes from './routes/auth';
+// import movieRoutes from './routes/movies';
+// import showtimeRoutes from './routes/showtimes';
+// import reservationRoutes from './routes/reservations';
+// import reportRoutes from './routes/reports';
 
-const app = new Hono()
+dotenv.config();
+const app = new Hono();
 
-app.get('/', (c) => {
-  return c.text('Hello Hono!')
-})
+app.route('/auth', authRoutes);
+// app.route('/movies', movieRoutes);
+// app.route('/showtimes', showtimeRoutes);
+// app.route('/reservations', reservationRoutes);
+// app.route('/reports', reportRoutes);
 
-export default app
+export default app;
