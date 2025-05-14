@@ -1,6 +1,5 @@
 import { Hono } from 'hono';
 import { z } from 'zod';
-import * as bcrypt from 'bcrypt';
 import * as jwt from 'jsonwebtoken';
 import { db } from '../db/client';
 import { users } from '../db/schema';
@@ -15,7 +14,10 @@ const LoginSchema  = z.object({ email: z.string().email(), password: z.string() 
 
 router.post('/signup', async (c) => {
   const { email, password } = SignupSchema.parse(await c.req.json());
-  const hash = await bcrypt.hash(password, 10);
+	const hash = await Bun.password.hash(password,{
+    algorithm: "bcrypt",
+    cost: 10
+  });
   const [user] = await db.insert(users)
     .values({ email, passwordHash: hash })
     .returning({ id: users.id, role: users.role });
@@ -31,7 +33,7 @@ router.post('/login', async (c) => {
     .where(eq(users.email, email))
     .limit(1)
     .then((rs) => rs[0]);
-  if (!user || !(await bcrypt.compare(password, user.passwordHash))) {
+  if (!user || !(await Bun.password.verify(password, user.passwordHash))) {
     return c.text('Invalid credentials', 401);
   }
   const token = jwt.sign({ userId: user.id, role: user.role }, process.env.JWT_SECRET!);
