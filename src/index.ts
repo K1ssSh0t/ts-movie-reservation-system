@@ -6,11 +6,13 @@ import movieRoutes from './routes/movies';
 import showtimeRoutes from './routes/showtimes';
 import reservationRoutes from './routes/reservations';
 import reportRoutes from './routes/reports';
+import {prettyJSON} from 'hono/pretty-json';
 
 dotenv.config();
 const app = new Hono();
 // logger middleware
 app.use(logger());
+app.use(prettyJSON());
 
 app.route('/auth', authRoutes);
 app.route('/movies', movieRoutes);
