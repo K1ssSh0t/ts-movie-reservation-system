@@ -1,5 +1,6 @@
 import { MiddlewareHandler } from 'hono';
-import * as jwt from 'jsonwebtoken';
+//import * as jwt from 'jsonwebtoken';
+import {verify} from "hono/jwt";
 
 export const authMiddleware: MiddlewareHandler = async (c, next) => {
   const authHeader = c.req.header('Authorization');
@@ -9,7 +10,7 @@ export const authMiddleware: MiddlewareHandler = async (c, next) => {
 
   const token = authHeader.split(' ')[1];
   try {
-    const payload = jwt.verify(token, process.env.JWT_SECRET!) as {
+    const payload = verify(token, process.env.JWT_SECRET!) as unknown as {
       userId: number;
       role: string;
     };

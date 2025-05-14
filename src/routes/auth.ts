@@ -1,6 +1,7 @@
 import { Hono } from 'hono';
 import { z } from 'zod';
-import * as jwt from 'jsonwebtoken';
+//import * as jwt from 'jsonwebtoken';
+import { sign } from 'hono/jwt';
 import { db } from '../db/client';
 import { users } from '../db/schema';
   // Import 'eq' from your query builder (e.g., 'drizzle-orm')
@@ -21,7 +22,7 @@ router.post('/signup', async (c) => {
   const [user] = await db.insert(users)
     .values({ email, passwordHash: hash })
     .returning({ id: users.id, role: users.role });
-  const token = jwt.sign({ userId: user.id, role: user.role }, process.env.JWT_SECRET!);
+  const token = sign({ userId: user.id, role: user.role }, process.env.JWT_SECRET!);
   return c.json({ token });
 });
 
@@ -36,7 +37,7 @@ router.post('/login', async (c) => {
   if (!user || !(await Bun.password.verify(password, user.passwordHash))) {
     return c.text('Invalid credentials', 401);
   }
-  const token = jwt.sign({ userId: user.id, role: user.role }, process.env.JWT_SECRET!);
+  const token = sign({ userId: user.id, role: user.role }, process.env.JWT_SECRET!);
   return c.json({ token });
 });
 
