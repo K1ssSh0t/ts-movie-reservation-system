@@ -10,7 +10,7 @@ export const authMiddleware: MiddlewareHandler = async (c, next) => {
 
   const token = authHeader.split(' ')[1];
   try {
-    const payload = verify(token, process.env.JWT_SECRET!) as unknown as {
+    const payload = await verify(token, process.env.JWT_SECRET!) as unknown as {
       userId: number;
       role: string;
     };
