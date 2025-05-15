@@ -1,3 +1,9 @@
+/**
+ * @file Rutas para gestionar funciones (showtimes) de películas.
+ * Permite consultar, crear y actualizar funciones. Algunas rutas requieren rol admin.
+ * @module routes/showtimes
+ */
+
 import { Hono } from 'hono';
 import { z } from 'zod';
 import { db } from '../db/client';
@@ -10,14 +16,23 @@ const router = new Hono();
 
 router.use('*', authMiddleware);
 
-// Schema de creación/actualización
+/**
+ * Esquema de validación para creación y actualización de funciones.
+ * movieId: ID de la película.
+ * startsAt: Fecha y hora de inicio.
+ * capacity: Capacidad total de asientos.
+ */
 const ShowtimeSchema = z.object({
   movieId: z.number().int(),
   startsAt: z.string().refine((s) => !isNaN(Date.parse(s)), { message: 'Invalid date' }),
   capacity: z.number().int().min(1),
 });
 
-// GET showtimes por fecha
+/**
+ * Ruta GET /
+ * Devuelve funciones programadas para una fecha específica.
+ * Requiere autenticación.
+ */
 router.get('/', async (c) => {
   const date = c.req.query('date')!;
   const dayStart = new Date(date);
@@ -31,7 +46,10 @@ router.get('/', async (c) => {
   return c.json(data);
 });
 
-// POST crear showtime (solo admin)
+/**
+ * Ruta POST /
+ * Crea una nueva función (solo admin) y genera asientos asociados.
+ */
 router.post('/', adminOnly, async (c) => {
   const { movieId, startsAt, capacity } = ShowtimeSchema.parse(await c.req.json());
   const [st] = await db
@@ -47,7 +65,10 @@ router.post('/', adminOnly, async (c) => {
   return c.json(st);
 });
 
-// PUT actualizar showtime (solo admin)
+/**
+ * Ruta PUT /:id
+ * Actualiza una función existente (solo admin).
+ */
 router.put('/:id', adminOnly, async (c) => {
   const id = Number(c.req.param('id'));
   const data = ShowtimeSchema.partial().parse(await c.req.json());
@@ -60,7 +81,10 @@ router.put('/:id', adminOnly, async (c) => {
   return c.json(updated);
 });
 
-// DELETE showtime (solo admin)
+/**
+ * Ruta DELETE /:id
+ * Elimina una función existente (solo admin).
+ */
 router.delete('/:id', adminOnly, async (c) => {
   const id = Number(c.req.param('id'));
   await db.delete(showtimes).where(eq(showtimes.id, id));

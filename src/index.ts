@@ -1,3 +1,9 @@
+/**
+ * @file Punto de entrada principal de la aplicación.
+ * Configura el servidor Hono, carga variables de entorno, registra middlewares y monta rutas.
+ * @module index
+ */
+
 import { Hono } from 'hono';
 import * as dotenv from 'dotenv';
 import authRoutes from './routes/auth';

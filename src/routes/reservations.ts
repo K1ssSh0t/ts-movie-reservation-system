@@ -1,9 +1,16 @@
+/**
+ * @file Rutas para gestionar reservas de asientos en funciones de cine.
+ * Incluye creación de reservas, validación de disponibilidad y manejo transaccional.
+ * Protegido por autenticación de usuario.
+ * @module routes/reservations
+ */
+
 import { Hono } from 'hono';
 import { z } from 'zod';
 import { db } from '../db/client';
 import { reservations, reservationSeats, seats, showtimes } from '../db/schema';
 import { authMiddleware } from '../middleware/auth';
-import { eq, inArray,and   } from 'drizzle-orm';
+import { eq, inArray, and } from 'drizzle-orm';
 
 type UserContext = {
   Variables: {
@@ -15,12 +22,21 @@ const router = new Hono<UserContext>();
 
 router.use('*', authMiddleware);
 
+/**
+ * Esquema de validación para crear una reserva.
+ * showtimeId: ID de la función.
+ * seatIds: Array de IDs de asientos a reservar.
+ */
 const ReserveSchema = z.object({
   showtimeId: z.number().int(),
   seatIds: z.array(z.number().int()).min(1),
 });
 
-// POST reservar asientos
+/**
+ * Ruta POST /
+ * Permite a un usuario reservar asientos para una función.
+ * Valida disponibilidad y evita overbooking mediante transacción.
+ */
 router.post('/', async (c) => {
   const { userId } = c.get('user') as any;
   const { showtimeId, seatIds } = ReserveSchema.parse(await c.req.json());

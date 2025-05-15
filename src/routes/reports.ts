@@ -1,3 +1,10 @@
+/**
+ * @file Rutas de reportes administrativos.
+ * Incluye reportes de reservas por película y ocupación de funciones.
+ * Protegido por autenticación y requiere rol de administrador.
+ * @module routes/reports
+ */
+
 import { Hono } from 'hono';
 import { z } from 'zod';
 import { db } from '../db/client';
@@ -9,12 +16,21 @@ const router = new Hono();
 
 router.use('*', authMiddleware, adminOnly);
 
+/**
+ * Esquema de validación para los parámetros de reportes.
+ * start: Fecha de inicio (string ISO).
+ * end: Fecha de fin (string ISO).
+ */
 const ReportSchema = z.object({
   start: z.string().refine((s) => !isNaN(Date.parse(s))),
   end: z.string().refine((s) => !isNaN(Date.parse(s))),
 });
 
-// GET resumen de reservas
+/**
+ * Ruta GET /reservations
+ * Devuelve resumen de reservas por película y ocupación por función en el rango de fechas indicado.
+ * Requiere autenticación y rol admin.
+ */
 router.get('/reservations', async (c) => {
   const { start, end } = ReportSchema.parse(c.req.query());
   const startDate = new Date(start);

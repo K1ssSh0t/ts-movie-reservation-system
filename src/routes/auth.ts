@@ -1,3 +1,8 @@
+/**
+ * @file Rutas de autenticación de usuarios (registro y login).
+ * Permite crear usuarios y obtener tokens JWT para autenticación.
+ * @module routes/auth
+ */
 import { Hono } from 'hono';
 import { z } from 'zod';
 //import * as jwt from 'jsonwebtoken';
@@ -10,9 +15,23 @@ import { users } from '../db/schema';
 
 const router = new Hono();
 
+/**
+ * Esquema de validación para registro de usuario.
+ * email: Correo electrónico.
+ * password: Contraseña (mínimo 6 caracteres).
+ */
 const SignupSchema = z.object({ email: z.string().email(), password: z.string().min(6) });
+/**
+ * Esquema de validación para login de usuario.
+ * email: Correo electrónico.
+ * password: Contraseña.
+ */
 const LoginSchema  = z.object({ email: z.string().email(), password: z.string() });
 
+/**
+ * Ruta POST /signup
+ * Registra un nuevo usuario y devuelve un token JWT.
+ */
 router.post('/signup', async (c) => {
   const { email, password } = SignupSchema.parse(await c.req.json());
 	const hash = await Bun.password.hash(password,{
@@ -26,6 +45,10 @@ router.post('/signup', async (c) => {
   return c.json({ token });
 });
 
+/**
+ * Ruta POST /login
+ * Autentica un usuario y devuelve un token JWT si las credenciales son válidas.
+ */
 router.post('/login', async (c) => {
   const { email, password } = LoginSchema.parse(await c.req.json());
 
