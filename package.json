@@ -5,7 +5,9 @@
   "scripts": {
     "dev": "bun run --hot src/index.ts",
     "migrate:dev": "bun drizzle-kit generate ",
-    "migrate:push": "bun drizzle-kit push "
+    "migrate:push": "bun drizzle-kit push ",
+    "build": "bun build src/index.ts --outdir dist",
+    "start": "bun src/index.ts"
   },
   "dependencies": {
     "@neondatabase/serverless": "^1.0.0",
